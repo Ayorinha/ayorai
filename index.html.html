@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayorai — Podcast de Tecnologia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET & ROOT ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --white:   #ffffff;
+  --off:     #fafaf8;
+  --paper:   #f4f3ef;
+  --ink:     #111110;
+  --ink2:    #444440;
+  --ink3:    #888884;
+  --ink4:    #c8c8c4;
+  --rule:    #e8e8e4;
+  --accent:  #111110;
+  --play:    #111110;
+  --radius:  2px;
+  --serif:   'Playfair Display', Georgia, serif;
+  --sans:    'Lato', system-ui, sans-serif;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── PROGRESS BAR ── */
+#prog {
+  position: fixed; top: 0; left: 0; height: 1px;
+  background: var(--ink); z-index: 999;
+  transition: width .5s ease; width: 0;
+  pointer-events: none;
+}
+
+/* ── MASTHEAD ── */
+#masthead {
+  border-bottom: 1px solid var(--rule);
+  padding: 0 48px;
+}
+#mast-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0 18px;
+  border-bottom: 1px solid var(--rule);
+}
+#site-name {
+  font-family: var(--serif);
+  font-size: 1.75rem; font-weight: 400; letter-spacing: .01em;
+  color: var(--ink); text-decoration: none;
+}
+#site-name em { font-style: italic; color: var(--ink3); }
+
+#mast-meta {
+  display: flex; align-items: center; gap: 20px;
+}
+#edition-date {
+  font-size: .7rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink3); font-weight: 400;
+}
+#live-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .62rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); font-weight: 400;
+}
+#live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #2ecc71; animation: breathe 2s ease infinite;
+}
+@keyframes breathe { 0%,100%{opacity:1} 50%{opacity:.3} }
+#live-dot.busy  { background: #f39c12; }
+#live-dot.error { background: #e74c3c; animation: none; }
+
+#tagline {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: .9rem;
+  color: var(--ink3);
+  padding: 10px 0;
+  letter-spacing: .01em;
+}
+
+/* ── EPISODE HERO ── */
+#episode-hero {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 56px 48px 40px;
+  border-bottom: 1px solid var(--rule);
+}
+
+#ep-label {
+  font-size: .62rem; letter-spacing: .25em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 14px; font-weight: 400;
+  display: flex; align-items: center; gap: 10px;
+}
+#ep-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--rule);
+  max-width: 120px;
+}
+
+#ep-title {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400; line-height: 1.2;
+  color: var(--ink); margin-bottom: 18px;
+  letter-spacing: -.01em;
+}
+
+#ep-intro {
+  font-size: 1rem; line-height: 1.75;
+  color: var(--ink2); font-weight: 300;
+  margin-bottom: 32px;
+  border-left: 2px solid var(--ink4);
+  padding-left: 18px;
+  font-style: italic;
+  font-family: var(--serif);
+}
+
+/* ── PLAYER ── */
+#player {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#player-top {
+  display: flex; align-items: center; gap: 16px;
+}
+
+/* The play/pause — pure CSS, no button text */
+#play-btn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--ink);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform .15s, opacity .15s;
+  position: relative;
+}
+#play-btn:hover { opacity: .85; transform: scale(1.04); }
+#play-btn:active { transform: scale(.96); }
+
+/* SVG icon inside play-btn */
+#play-btn svg { pointer-events: none; }
+
+#player-info { flex: 1; min-width: 0; }
+#player-ep-name {
+  font-size: .68rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 3px; font-weight: 400;
+}
+#player-status {
+  font-size: .88rem; color: var(--ink); font-weight: 300;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+#player-time {
+  font-size: .72rem; color: var(--ink3); font-weight: 400;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
+/* Waveform animation */
+#waveform {
+  display: flex; align-items: center; gap: 3px; height: 24px;
+  opacity: 0; transition: opacity .3s;
+}
+#waveform.active { opacity: 1; }
+.wave-bar {
+  width: 3px; background: var(--ink4); border-radius: 2px;
+  animation: wave 1.2s ease infinite;
+}
+.wave-bar:nth-child(1){height:8px;animation-delay:0s}
+.wave-bar:nth-child(2){height:16px;animation-delay:.1s}
+.wave-bar:nth-child(3){height:22px;animation-delay:.2s}
+.wave-bar:nth-child(4){height:14px;animation-delay:.3s}
+.wave-bar:nth-child(5){height:20px;animation-delay:.15s}
+.wave-bar:nth-child(6){height:10px;animation-delay:.25s}
+.wave-bar:nth-child(7){height:18px;animation-delay:.05s}
+.wave-bar:nth-child(8){height:24px;animation-delay:.35s}
+.wave-bar:nth-child(9){height:12px;animation-delay:.1s}
+.wave-bar:nth-child(10){height:20px;animation-delay:.2s}
+.wave-bar:nth-child(11){height:8px;animation-delay:.3s}
+.wave-bar:nth-child(12){height:16px;animation-delay:.0s}
+@keyframes wave {
+  0%,100%{transform:scaleY(1)} 50%{transform:scaleY(.35)}
+}
+
+/* Speed control */
+#speed-row {
+  display: flex; align-items: center; gap: 10px;
+  font-size: .65rem; color: var(--ink3); letter-spacing: .08em;
+}
+#speed-select {
+  font-family: var(--sans); font-size: .65rem; font-weight: 400;
+  background: var(--white); border: 1px solid var(--rule);
+  color: var(--ink2); padding: 3px 8px; border-radius: 2px;
+  cursor: pointer;
+}
+
+/* Transcript toggle */
+#transcript-toggle {
+  font-size: .65rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink3); cursor: pointer; background: none; border: none;
+  font-family: var(--sans); font-weight: 400;
+  display: flex; align-items: center; gap: 6px;
+  padding: 0; transition: color .2s;
+}
+#transcript-toggle:hover { color: var(--ink); }
+#transcript-toggle::before {
+  content: ''; width: 10px; height: 10px;
+  border: 1px solid currentColor; border-radius: 1px;
+  display: inline-block;
+}
+
+/* ── TRANSCRIPT ── */
+#transcript-wrap {
+  max-width: 860px; margin: 0 auto;
+  padding: 0 48px 40px;
+  display: none;
+}
+#transcript-wrap.open { display: block; }
+#transcript-inner {
+  border-left: 1px solid var(--rule);
+  padding: 32px 0 0 32px;
+  margin-top: 32px;
+}
+#transcript-label {
+  font-size: .62rem; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ink3); margin-bottom: 20px; font-weight: 400;
+}
+#transcript-text {
+  font-family: var(--serif);
+  font-size: .95rem; line-height: 1.85;
+  color: var(--ink2); white-space: pre-wrap;
+}
+/* highlight currently speaking sentence */
+.speaking { background: #f0f0ea; border-radius: 2px; transition: background .2s; }
+
+/* ── NEWS GRID ── */
+#news-section {
+  max-width: 1160px; margin: 0 auto;
+  padding: 48px 48px 64px;
+}
+
+#news-header {
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 2px solid var(--ink); padding-bottom: 10px;
+  margin-bottom: 28px;
+}
+#news-header h2 {
+  font-family: var(--serif); font-size: 1.15rem;
+  font-weight: 400; letter-spacing: .01em;
+}
+#news-header span {
+  font-size: .65rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink3); font-weight: 400;
+}
+
+/* Filter chips */
+#chips {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+.chip {
+  font-size: .6rem; letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 20px; background: none;
+  color: var(--ink3); cursor: pointer;
+  font-family: var(--sans); font-weight: 400;
+  transition: all .15s;
+}
+.chip:hover { border-color: var(--ink3); color: var(--ink); }
+.chip.on { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+/* News list */
+#news-list { display: flex; flex-direction: column; }
+
+.ni {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 0 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--rule);
+  text-decoration: none; color: inherit;
+  transition: background .12s;
+}
+.ni:hover { background: var(--off); margin: 0 -12px; padding: 16px 12px; border-radius: var(--radius); }
+.ni:hover { border-bottom-color: transparent; }
+
+.ni-num {
+  font-size: .65rem; color: var(--ink4);
+  font-variant-numeric: tabular-nums;
+  padding-top: 3px; text-align: right;
+  font-weight: 400; letter-spacing: .02em;
+}
+.ni-body { display: flex; flex-direction: column; gap: 5px; }
+
+.ni-title {
+  font-family: var(--serif);
+  font-size: 1rem; font-weight: 400; line-height: 1.4;
+  color: var(--ink);
+}
+.ni-sum {
+  font-size: .82rem; line-height: 1.55;
+  color: var(--ink3); font-weight: 300;
+}
+.ni-foot {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 2px;
+}
+.ni-src {
+  font-size: .6rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink4); font-weight: 400;
+}
+.ni-time { font-size: .6rem; color: var(--ink4); }
+.ni-tag {
+  font-size: .55rem; text-transform: uppercase; letter-spacing: .1em;
+  padding: 2px 7px; border-radius: 20px; font-weight: 400;
+  border: 1px solid;
+}
+.tag-ai       { color:#4444bb; border-color:#ddddf5; background:#f5f5fd; }
+.tag-security { color:#aa3333; border-color:#f5dddd; background:#fdf5f5; }
+.tag-hardware { color:#226622; border-color:#ddf0dd; background:#f5fdf5; }
+.tag-startup  { color:#886611; border-color:#f5eecc; background:#fdfaf0; }
+.tag-cloud    { color:#114488; border-color:#dde8f5; background:#f5f8fd; }
+.tag-dev      { color:#226655; border-color:#ddf0ec; background:#f5fdfb; }
+.tag-policy   { color:#663388; border-color:#eeddf5; background:#faf5fd; }
+.tag-crypto   { color:#885522; border-color:#f5e8dd; background:#fdf8f5; }
+
+/* skeletons */
+.sk .ni-title { background: var(--paper); color: transparent; border-radius: 2px; height: 18px; width: 75%; }
+.sk .ni-sum   { background: var(--off);   color: transparent; border-radius: 2px; height: 13px; width: 55%; }
+.sk .ni-src   { background: var(--off);   color: transparent; border-radius: 2px; width: 50px; height: 10px; display:inline-block; }
+
+/* ── ERROR ── */
+#err {
+  display: none;
+  padding: 14px 18px; margin: 0 0 20px;
+  background: #fdf5f5; border: 1px solid #f5dddd;
+  border-radius: var(--radius);
+  font-size: .82rem; color: #aa3333; line-height: 1.5;
+}
+
+/* ── FOOTER ── */
+#site-footer {
+  border-top: 1px solid var(--rule);
+  padding: 24px 48px;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 12px;
+}
+#site-footer .f-brand {
+  font-family: var(--serif); font-size: 1rem; font-style: italic;
+  color: var(--ink3);
+}
+#site-footer span {
+  font-size: .62rem; letter-spacing: .1em; color: var(--ink4); text-transform: uppercase;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 680px) {
+  #masthead, #episode-hero, #transcript-wrap, #news-section, #site-footer {
+    padding-left: 20px; padding-right: 20px;
+  }
+  #ep-title { font-size: 1.6rem; }
+  #mast-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
+</style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<!-- ══ MASTHEAD ══ -->
+<header id="masthead">
+  <div id="mast-top">
+    <a href="#" id="site-name">Ayorai <em>tech</em></a>
+    <div id="mast-meta">
+      <div id="live-pill"><div id="live-dot"></div>Ao vivo</div>
+      <div id="edition-date"></div>
+    </div>
+  </div>
+  <p id="tagline">Notícias de tecnologia narradas por inteligência artificial — todo dia, automaticamente.</p>
+</header>
+
+<!-- ══ EPISODE HERO ══ -->
+<section id="episode-hero">
+  <div id="ep-label">Edição de hoje</div>
+  <h1 id="ep-title">Carregando edição…</h1>
+  <p id="ep-intro">Buscando as principais notícias de tecnologia do mundo…</p>
+
+  <!-- PLAYER -->
+  <div id="player">
+    <div id="player-top">
+
+      <!-- Play/Pause button (pure SVG, no text) -->
+      <button id="play-btn" aria-label="Reproduzir" onclick="togglePlay()">
+        <svg id="icon-play" width="18" height="18" viewBox="0 0 24 24" fill="white">
+          <polygon points="5,3 19,12 5,21"/>
+        </svg>
+        <svg id="icon-pause" width="18" height="18" viewBox="0 0 24 24" fill="white" style="display:none">
+          <rect x="5" y="3" width="4" height="18" rx="1"/>
+          <rect x="15" y="3" width="4" height="18" rx="1"/>
+        </svg>
+      </button>
+
+      <div id="player-info">
+        <div id="player-ep-name">Podcast · Ayorai Tech</div>
+        <div id="player-status">Aguardando…</div>
+      </div>
+
+      <div id="waveform">
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+        <div class="wave-bar"></div><div class="wave-bar"></div>
+      </div>
+
+      <div id="player-time">0:00</div>
+    </div>
+
+    <div id="speed-row">
+      <span>Velocidade</span>
+      <select id="speed-select" onchange="setSpeed(this.value)">
+        <option value="0.8">0.8×</option>
+        <option value="1" selected>1×</option>
+        <option value="1.2">1.2×</option>
+        <option value="1.5">1.5×</option>
+        <option value="1.8">1.8×</option>
+      </select>
+      <span style="margin-left:auto">
+        <button id="transcript-toggle" onclick="toggleTranscript()">Ver roteiro</button>
+      </span>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TRANSCRIPT ══ -->
+<div id="transcript-wrap">
+  <div id="transcript-inner">
+    <div id="transcript-label">Roteiro completo</div>
+    <div id="transcript-text"></div>
+  </div>
+</div>
+
+<!-- ══ NEWS SECTION ══ -->
+<section id="news-section">
+  <div id="news-header">
+    <h2>Notícias desta edição</h2>
+    <span id="news-count">—</span>
+  </div>
+
+  <div id="chips">
+    <button class="chip on"  onclick="setChip(this,'all')">Todas</button>
+    <button class="chip" onclick="setChip(this,'ai')">IA & ML</button>
+    <button class="chip" onclick="setChip(this,'security')">Segurança</button>
+    <button class="chip" onclick="setChip(this,'hardware')">Hardware</button>
+    <button class="chip" onclick="setChip(this,'startup')">Startups</button>
+    <button class="chip" onclick="setChip(this,'cloud')">Cloud</button>
+    <button class="chip" onclick="setChip(this,'dev')">Dev</button>
+    <button class="chip" onclick="setChip(this,'policy')">Política</button>
+    <button class="chip" onclick="setChip(this,'crypto')">Crypto</button>
+  </div>
+
+  <div id="err"></div>
+  <div id="news-list"></div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer id="site-footer">
+  <span class="f-brand">Ayorai tech</span>
+  <span>Curadoria e narração por IA · Atualização automática</span>
+  <span>© 2025 Ayorai.com</span>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+let articles   = [];
+let podcast    = '';       // full podcast script
+let sentences  = [];       // sentences for highlight
+let curFilter  = 'all';
+let utterance  = null;
+let speaking   = false;
+let paused     = false;
+let sentIdx    = 0;
+let timerRef   = null;
+let elapsed    = 0;
+let speed      = 1;
+
+const TAGS = { ai:'IA', security:'Seg.', hardware:'HW', startup:'Startup',
+               cloud:'Cloud', dev:'Dev', policy:'Política', crypto:'Crypto' };
+
+/* ═══════════════════════════════════════════
+   UTILITIES
+═══════════════════════════════════════════ */
+function prog(p) {
+  const b = document.getElementById('prog');
+  b.style.width = p + '%';
+  if (p >= 100) setTimeout(() => b.style.width = '0', 700);
+}
+
+function dot(s) {
+  const d = document.getElementById('live-dot');
+  d.className = s || '';
+}
+
+function fmtTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = String(Math.floor(s % 60)).padStart(2, '0');
+  return `${m}:${sec}`;
+}
+
+// Set today's date in the masthead
+(function setDate() {
+  document.getElementById('edition-date').textContent =
+    new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+})();
+
+/* ═══════════════════════════════════════════
+   MAIN LOAD — fetch news + generate podcast
+═══════════════════════════════════════════ */
+async function loadAll() {
+  dot('busy'); prog(8);
+  stopAudio();
+
+  // Show skeletons
+  document.getElementById('news-list').innerHTML =
+    Array(10).fill(0).map((_, i) => `
+      <div class="ni sk">
+        <span class="ni-num">${String(i+1).padStart(2,'0')}</span>
+        <div class="ni-body">
+          <div class="ni-title">&nbsp;</div>
+          <div class="ni-sum">&nbsp;</div>
+          <div class="ni-foot"><span class="ni-src">&nbsp;</span></div>
+        </div>
+      </div>`).join('');
+
+  document.getElementById('ep-title').textContent = 'Buscando notícias…';
+  document.getElementById('ep-intro').textContent  = 'A IA está coletando as principais histórias de tecnologia do mundo agora.';
+  document.getElementById('player-status').textContent = 'Preparando podcast…';
+  document.getElementById('err').style.display = 'none';
+
+  try {
+    prog(20);
+
+    /* ── STEP 1: Fetch news articles ── */
+    const newsResp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `Você é um curador de notícias de tecnologia. Busque as notícias de tecnologia mais importantes e recentes do mundo agora. Responda APENAS com JSON puro, sem markdown, sem backticks. Formato:
+{"articles":[{"title":"título em português","source":"Nome da Fonte","url":"https://url-real.com","time":"há X min","category":"ai|security|hardware|startup|cloud|dev|policy|crypto","summary":"Uma frase clara em português descrevendo a notícia."}]}
+Categorias: ai=IA/LLMs/modelos/agentes, security=cibersegurança/hacking/privacidade, hardware=chips/dispositivos/semicondutores, startup=empresas/funding/IPO/aquisições, cloud=AWS/Azure/GCP/infraestrutura, dev=programação/ferramentas/open-source, policy=regulação/governo/antitruste, crypto=Bitcoin/blockchain/Web3.
+Retorne exatamente 15 artigos frescos e variados das últimas horas. Fontes: TechCrunch, The Verge, Wired, Ars Technica, MIT Technology Review, VentureBeat, Reuters Tech, Bloomberg Technology, 9to5Google, 9to5Mac, Android Authority, The Register, ZDNet, Hacker News, Tecmundo, Canaltech, Olhar Digital.`,
+        messages: [{ role: 'user', content: 'Busque as 15 principais notícias de tecnologia agora. Responda APENAS com JSON.' }]
+      })
+    });
+
+    prog(50);
+    const newsData = await newsResp.json();
+    if (newsData.error) throw new Error(newsData.error.message);
+
+    const newsTxt = (newsData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    const newsMatch = newsTxt.match(/\{[\s\S]*\}/);
+    if (!newsMatch) throw new Error('Formato de notícias inválido');
+    const newsJson = JSON.parse(newsMatch[0]);
+    articles = (newsJson.articles || []).map((a, i) => ({ ...a, idx: i }));
+
+    prog(60);
+
+    /* ── STEP 2: Generate podcast script ── */
+    const titles = articles.map((a, i) => `${i+1}. ${a.title} — ${a.summary}`).join('\n');
+
+    const podResp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `Você é um apresentador de podcast de tecnologia brasileiro, com voz clara, inteligente e envolvente. Escreva um roteiro de podcast em português brasileiro a partir das notícias fornecidas. O roteiro deve:
+- Começar com uma saudação calorosa e a data de hoje
+- Apresentar as notícias de forma fluida e conversacional, como se estivesse falando com um amigo inteligente
+- Usar transições naturais entre os assuntos ("Outro destaque do dia...", "Em seguida...", "Mudando de assunto...")
+- Dar contexto e opinião breve sobre cada notícia
+- Terminar com um fechamento motivador
+- Ter entre 400 e 600 palavras
+- NÃO usar markdown, NÃO usar asteriscos, listas ou símbolos — texto corrido para narração em voz alta
+- Escrever como se fosse ser lido em voz alta: frases curtas, naturais, com ritmo`,
+        messages: [{
+          role: 'user',
+          content: `Crie o roteiro do podcast de tecnologia de hoje com base nessas notícias:\n\n${titles}\n\nData de hoje: ${new Date().toLocaleDateString('pt-BR', {weekday:'long',day:'numeric',month:'long'})}`
+        }]
+      })
+    });
+
+    prog(85);
+    const podData = await podResp.json();
+    if (podData.error) throw new Error(podData.error.message);
+
+    podcast = (podData.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
+
+    // Split into sentences for highlight
+    sentences = podcast.match(/[^.!?]+[.!?]+/g) || [podcast];
+
+    prog(95);
+
+    /* ── Render everything ── */
+    renderEpisode();
+    renderNews();
+    dot('');
+    prog(100);
+
+  } catch (e) {
+    const eb = document.getElementById('err');
+    eb.style.display = 'block';
+    eb.textContent = 'Não foi possível carregar o conteúdo: ' + (e.message || 'Erro desconhecido. Recarregue a página.');
+    document.getElementById('news-list').innerHTML = '';
+    document.getElementById('ep-title').textContent = 'Erro ao carregar edição';
+    document.getElementById('ep-intro').textContent = 'Verifique sua conexão e tente novamente.';
+    dot('error');
+    prog(100);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   RENDER EPISODE HEADER
+═══════════════════════════════════════════ */
+function renderEpisode() {
+  // Build title from top category
+  const cats = {};
+  articles.forEach(a => { cats[a.category] = (cats[a.category]||0)+1; });
+  const topCat = Object.entries(cats).sort((x,y)=>y[1]-x[1])[0]?.[0] || 'tech';
+  const catNames = { ai:'Inteligência Artificial', security:'Cibersegurança', hardware:'Hardware',
+    startup:'Startups', cloud:'Cloud Computing', dev:'Desenvolvimento', policy:'Política Tech', crypto:'Crypto' };
+
+  document.getElementById('ep-title').textContent =
+    `${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})} — ${articles.length} histórias em destaque`;
+
+  // First 2 sentences of podcast as intro
+  const intro = sentences.slice(0, 2).join(' ').trim();
+  document.getElementById('ep-intro').textContent = intro || 'Confira as principais notícias de tecnologia de hoje.';
+
+  // Transcript
+  document.getElementById('transcript-text').textContent = podcast;
+  document.getElementById('player-status').textContent = 'Pronto para reproduzir';
+  document.getElementById('news-count').textContent = articles.length + ' artigos';
+}
+
+/* ═══════════════════════════════════════════
+   RENDER NEWS LIST
+═══════════════════════════════════════════ */
+function renderNews() {
+  const list = curFilter === 'all' ? articles : articles.filter(a => a.category === curFilter);
+  const el = document.getElementById('news-list');
+  document.getElementById('news-count').textContent = list.length + ' artigos';
+
+  if (!list.length) {
+    el.innerHTML = '<p style="padding:24px 0;font-size:.85rem;color:var(--ink3);font-style:italic">Nenhum artigo nessa categoria.</p>';
+    return;
+  }
+
+  el.innerHTML = list.map((a, i) => {
+    const tag = a.category
+      ? `<span class="ni-tag tag-${a.category}">${TAGS[a.category]||a.category}</span>`
+      : '';
+    const url = (a.url||'').startsWith('http') ? a.url : '#';
+    return `<a class="ni" href="${url}" target="_blank" rel="noopener noreferrer">
+      <span class="ni-num">${String(i+1).padStart(2,'0')}</span>
+      <div class="ni-body">
+        <div class="ni-title">${a.title||''}</div>
+        ${a.summary ? `<div class="ni-sum">${a.summary}</div>` : ''}
+        <div class="ni-foot">
+          <span class="ni-src">${a.source||''}</span>
+          <span class="ni-time">${a.time||''}</span>
+          ${tag}
+        </div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════
+   FILTER
+═══════════════════════════════════════════ */
+function setChip(el, cat) {
+  curFilter = cat;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  renderNews();
+}
+
+/* ═══════════════════════════════════════════
+   AUDIO — Web Speech API
+═══════════════════════════════════════════ */
+function togglePlay() {
+  if (!podcast) return;
+  if (speaking && !paused) {
+    pauseAudio();
+  } else if (paused) {
+    resumeAudio();
+  } else {
+    startAudio();
+  }
+}
+
+function startAudio() {
+  if (!('speechSynthesis' in window)) {
+    alert('Seu navegador não suporta síntese de voz. Tente Chrome ou Edge.');
+    return;
+  }
+  stopAudio();
+  sentIdx = 0;
+  elapsed = 0;
+  speaking = true;
+  paused   = false;
+  speakNextSentence();
+  startTimer();
+  updatePlayerUI();
+}
+
+function speakNextSentence() {
+  if (!speaking || sentIdx >= sentences.length) {
+    if (sentIdx >= sentences.length) finishAudio();
+    return;
+  }
+
+  // Highlight current sentence in transcript
+  highlightSentence(sentIdx);
+
+  utterance = new SpeechSynthesisUtterance(sentences[sentIdx]);
+  utterance.lang  = 'pt-BR';
+  utterance.rate  = speed;
+  utterance.pitch = 1;
+
+  // Prefer a Portuguese voice if available
+  const voices = speechSynthesis.getVoices();
+  const ptVoice = voices.find(v => v.lang.startsWith('pt') && v.localService) ||
+                  voices.find(v => v.lang.startsWith('pt')) ||
+                  voices.find(v => v.lang.startsWith('en'));
+  if (ptVoice) utterance.voice = ptVoice;
+
+  utterance.onend = () => {
+    sentIdx++;
+    speakNextSentence();
+  };
+  utterance.onerror = () => {
+    sentIdx++;
+    speakNextSentence();
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+function pauseAudio() {
+  speechSynthesis.pause();
+  paused   = true;
+  speaking = true;
+  stopTimer();
+  updatePlayerUI();
+}
+
+function resumeAudio() {
+  speechSynthesis.resume();
+  paused   = false;
+  speaking = true;
+  startTimer();
+  updatePlayerUI();
+}
+
+function stopAudio() {
+  speechSynthesis.cancel();
+  speaking = false;
+  paused   = false;
+  stopTimer();
+  clearHighlight();
+  updatePlayerUI();
+}
+
+function finishAudio() {
+  speaking = false;
+  paused   = false;
+  stopTimer();
+  clearHighlight();
+  document.getElementById('player-status').textContent = 'Episódio concluído';
+  updatePlayerUI();
+}
+
+function setSpeed(val) {
+  speed = parseFloat(val);
+  if (speaking && !paused) {
+    // Restart from current sentence with new speed
+    const idx = sentIdx;
+    stopAudio();
+    sentIdx = idx;
+    elapsed = 0;
+    speaking = true;
+    paused   = false;
+    speakNextSentence();
+    startTimer();
+    updatePlayerUI();
+  }
+}
+
+/* timer */
+function startTimer() {
+  stopTimer();
+  timerRef = setInterval(() => {
+    elapsed++;
+    document.getElementById('player-time').textContent = fmtTime(elapsed);
+  }, 1000);
+}
+function stopTimer() {
+  if (timerRef) { clearInterval(timerRef); timerRef = null; }
+}
+
+/* UI state */
+function updatePlayerUI() {
+  const pp  = document.getElementById('icon-play');
+  const pa  = document.getElementById('icon-pause');
+  const wav = document.getElementById('waveform');
+  const st  = document.getElementById('player-status');
+
+  if (speaking && !paused) {
+    pp.style.display = 'none';
+    pa.style.display = '';
+    wav.classList.add('active');
+    st.textContent = 'Reproduzindo…';
+  } else if (paused) {
+    pp.style.display = '';
+    pa.style.display = 'none';
+    wav.classList.remove('active');
+    st.textContent = 'Pausado';
+  } else {
+    pp.style.display = '';
+    pa.style.display = 'none';
+    wav.classList.remove('active');
+    if (podcast) st.textContent = 'Pronto para reproduzir';
+  }
+}
+
+/* highlight sentence in transcript */
+function highlightSentence(idx) {
+  clearHighlight();
+  const txt = document.getElementById('transcript-text');
+  const raw = sentences[idx];
+  if (!raw || !txt.textContent.includes(raw.trim())) return;
+  // Simple highlight via innerHTML replacement (first occurrence)
+  const escaped = raw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  txt.innerHTML = txt.innerHTML.replace(
+    new RegExp(escaped), `<span class="speaking">${raw}</span>`
+  );
+  // Scroll into view
+  const sp = txt.querySelector('.speaking');
+  if (sp) sp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearHighlight() {
+  const txt = document.getElementById('transcript-text');
+  if (txt.querySelector('.speaking')) {
+    txt.textContent = podcast;
+  }
+}
+
+/* transcript toggle */
+function toggleTranscript() {
+  const w = document.getElementById('transcript-wrap');
+  const b = document.getElementById('transcript-toggle');
+  const open = w.classList.toggle('open');
+  b.textContent = open ? 'Ocultar roteiro' : 'Ver roteiro';
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+// Load voices on ready (Chrome needs this)
+if ('speechSynthesis' in window) {
+  speechSynthesis.onvoiceschanged = () => {};
+  speechSynthesis.getVoices();
+}
+
+loadAll();
+// Auto-refresh every 30 min
+setInterval(loadAll, 1800000);
+</script>
+</body>
+</html>
