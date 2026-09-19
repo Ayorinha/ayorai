@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+
 class MCPAdapter(ABC):
     @abstractmethod
     def call(self, tool: str, arguments: dict[str, Any]) -> Any:
