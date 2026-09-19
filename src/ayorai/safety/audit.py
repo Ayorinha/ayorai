@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 @dataclass(frozen=True)
@@ -13,7 +13,7 @@ class AuditEvent:
 
     def __post_init__(self) -> None:
         if not self.timestamp:
-            object.__setattr__(self, "timestamp", datetime.now(timezone.utc).isoformat())
+            object.__setattr__(self, "timestamp", datetime.now(UTC).isoformat())
 
 class AuditLog:
     def __init__(self) -> None:
