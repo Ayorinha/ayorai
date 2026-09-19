@@ -4,7 +4,12 @@ on:
   push:
     branches: ["main", "develop", "feature/**"]
   pull_request:
+  schedule:
+    - cron: "17 3 * * *"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   evaluate:
@@ -18,8 +23,22 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[dev]"
-      - name: Run safety regression tests
+      - name: Run automatic safety regression suite
         run: pytest -q tests/test_safety_evaluation.py
-      - name: Print safety metrics
+      - name: Generate machine-readable safety report
         run: |
-          python -c "from ayorai.safety.evaluation import run_baseline; print(run_baseline()['metrics'])"
+          python - <<'PY'
+          import json
+          from dataclasses import asdict
+          from pathlib import Path
+          from ayorai.safety.evaluation import run_baseline
+          report = run_baseline()
+          report["results"] = [asdict(item) for item in report["results"]]
+          Path("safety-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+          print(json.dumps(report["metrics"], indent=2))
+          PY
+      - name: Upload safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ayorai-safety-report
+          path: safety-report.json
