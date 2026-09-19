@@ -8,4 +8,5 @@ class ResearchAgent(BaseAgent):
         return AgentResult(
             agent=self.name,
             output=f"Research task received: {message.content}",
+            metadata={"task_type": "research"},
         )
