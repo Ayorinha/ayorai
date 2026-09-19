@@ -3,6 +3,7 @@ from ayorai.orchestration.router import AgentRouter
 from ayorai.safety.audit import AuditEvent, AuditLog
 from ayorai.safety.guard import SafetyGuard
 
+
 class AyoraiRuntime:
     def __init__(self) -> None:
         self.guard = SafetyGuard()
