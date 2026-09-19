@@ -13,8 +13,8 @@ class SafetyGuard:
     """Deterministic text-level detection and blocking policy gate."""
 
     rules = (
-        ("PI-001", "prompt_injection", ("ignore previous instructions", "ignore all previous instructions"), "Prompt-injection instruction override detected."),
-        ("PI-002", "prompt_injection", ("reveal system prompt", "reveal the system prompt", "hidden system message", "internal policy"), "Protected instruction extraction detected."),
+        ("PI-001", "prompt_injection", ("ignore previous instructions", "ignore all previous instructions", "ignore your earlier rules", "forget the instructions above"), "Prompt-injection instruction override detected."),
+        ("PI-002", "prompt_injection", ("reveal system prompt", "reveal the system prompt", "hidden system message", "internal policy", "confidential instructions"), "Protected instruction extraction detected."),
         ("PI-003", "prompt_injection", ("disable safety", "bypass your policy", "bypass security checks"), "Safety-control bypass attempt detected."),
         ("JB-001", "jailbreak", ("unrestricted agent", "no safety restrictions", "developer mode"), "Jailbreak or policy-bypass language detected."),
         ("TOOL-001", "tool_abuse", ("every available tool", "unapproved mcp tool", "not authorized"), "Unauthorized tool-use request detected."),
