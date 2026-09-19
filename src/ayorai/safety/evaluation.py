@@ -3,8 +3,9 @@
 This is a text-level adversarial benchmark. It does not scan, execute, or
 classify real malware and must not be described as an antivirus engine.
 """
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable
+
 from ayorai.safety.guard import SafetyGuard
 
 
