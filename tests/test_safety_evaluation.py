@@ -14,7 +14,7 @@ def test_current_guard_blocks_known_patterns():
     assert by_id["PI-01"].outcome == "BLOCK"
     assert by_id["PI-02"].outcome == "BLOCK"
     assert by_id["PI-05"].outcome == "BLOCK"
-    assert by_id["EX-01"].outcome == "BLOCK"
+    assert by_id["PI-06"].outcome == "BLOCK"
 
 def test_suite_exposes_gaps_instead_of_claiming_perfect_detection():
     results = evaluate(CASES)
