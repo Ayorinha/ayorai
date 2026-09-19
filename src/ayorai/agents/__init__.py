@@ -1,1 +1,1 @@
-"""Agent implementations."""
+"""Specialized AYORAI agents."""
