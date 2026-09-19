@@ -2,26 +2,16 @@
 
 ## Scope
 
-AYORAI is an experimental open-source framework for agentic AI, retrieval, tool governance, and AI safety controls.
+This repository is a public engineering project. Do not submit real personal, financial, institutional or confidential documents as issues, examples or test fixtures.
 
-## Reporting a vulnerability
+## Reporting
 
-Please do not disclose exploitable vulnerabilities in a public issue.
+For a suspected vulnerability, avoid publishing exploit details in a public issue. Contact the repository owner privately through the GitHub profile so the issue can be assessed before disclosure.
 
-Use GitHub's private vulnerability reporting/security advisory workflow when available. Include:
-- affected component and version
-- reproducible steps
-- security impact
-- suggested mitigation, if known
+## Claims
 
-## Security design principles
+Security and AI-safety claims are scoped to the documented version, configuration, test corpus and methodology. The project does not claim absolute security.
 
-AYORAI follows:
-1. explicit tool allowlists
-2. deterministic policy gates
-3. input/output validation
-4. auditable execution metadata
-5. least-privilege tool access
-6. tests for prompt-injection patterns
+## Data
 
-Security controls are not a substitute for deployment-specific threat modeling.
+Use synthetic, public or explicitly authorized data in demonstrations.
