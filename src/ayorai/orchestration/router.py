@@ -4,6 +4,7 @@ from ayorai.agents.reviewer import ReviewerAgent
 from ayorai.agents.security import SecurityAgent
 from ayorai.core.types import AgentMessage, AgentResult
 
+
 class AgentRouter:
     def __init__(self) -> None:
         self.agents = {
