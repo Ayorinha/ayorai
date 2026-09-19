@@ -1,0 +1,25 @@
+name: AYORAI Safety Evaluation
+
+on:
+  push:
+    branches: ["main", "develop", "feature/**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Run safety regression tests
+        run: pytest -q tests/test_safety_evaluation.py
+      - name: Print safety metrics
+        run: |
+          python -c "from ayorai.safety.evaluation import run_baseline; print(run_baseline()['metrics'])"
