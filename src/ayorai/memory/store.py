@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
+
 class MemoryStore(ABC):
     @abstractmethod
     def put(self, key: str, value: Any) -> None:

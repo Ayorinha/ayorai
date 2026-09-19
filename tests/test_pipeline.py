@@ -1,5 +1,6 @@
 from ayorai.orchestration.pipeline import GovernedPipeline
 
+
 def test_pipeline_keeps_plan_execution_and_review_history():
     context = GovernedPipeline().execute(
         "Analyze a document", request_id="test-1"

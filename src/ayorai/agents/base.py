@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
+
 from ayorai.core.types import AgentMessage, AgentResult
+
 
 class BaseAgent(ABC):
     name = "base-agent"
