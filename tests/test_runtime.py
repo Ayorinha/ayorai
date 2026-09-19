@@ -1,5 +1,7 @@
 import pytest
+
 from ayorai.runtime import AyoraiRuntime
+
 
 def test_runtime_executes_safe_task():
     result = AyoraiRuntime().run("Analyze a document")
