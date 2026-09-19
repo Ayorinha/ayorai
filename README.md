@@ -12,33 +12,24 @@ AYORAI is an applied AI engineering framework for modular agentic systems with e
 
 ## Architecture
 ```
-User
-  ↓
-Safety Guard
-  ↓
-Planner → Router → Specialized Agents
-                    ├─ Research
-                    ├─ Analyst
-                    ├─ Security
-                    └─ Reviewer
-  ↓
-Memory / RAG / MCP / Tools
-  ↓
-Safety validation
-  ↓
-Auditable Result
+User → Safety Guard → Planner → Router → Specialized Agents
+                                      ├─ Research
+                                      ├─ Analyst
+                                      ├─ Security
+                                      └─ Reviewer
+                 → Memory / RAG / MCP / Tools → Safety → Result
 ```
 
 ## Repository structure
-- `src/ayorai/agents` — specialized agent implementations
-- `src/ayorai/core` — shared contracts and execution context
+- `src/ayorai/agents` — specialized agents
+- `src/ayorai/core` — shared contracts
 - `src/ayorai/orchestration` — planning and routing
 - `src/ayorai/safety` — policy and risk controls
 - `src/ayorai/memory` — state interfaces
 - `src/ayorai/rag` — retrieval interfaces
-- `src/ayorai/mcp` — tool/context adapter interfaces
-- `src/ayorai/tools` — governed tool registry
-- `tests` — automated behavior tests
+- `src/ayorai/mcp` — tool/context adapters
+- `src/ayorai/tools` — governed tools
+- `tests` — automated tests
 
 ## Quick start
 ```bash
