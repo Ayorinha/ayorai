@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import copy
 import ctypes
 import os
 from ctypes import POINTER, Structure, byref, c_char, c_char_p, c_float, c_int32, c_int64, c_ubyte
@@ -80,8 +79,8 @@ class OcrEngine:
                 self.ocr_dll.ReleaseOcrProcessOptions(self.process_options)
                 self.ocr_dll.ReleaseOcrPipeline(self.pipeline)
                 self.ocr_dll.ReleaseOcrInitOptions(self.init_options)
-        except Exception:
-            pass
+        except (AttributeError, OSError):
+            return
 
     @staticmethod
     def _check(code, message):
