@@ -9,3 +9,6 @@ venv/
 dist/
 build/
 *.egg-info/
+
+runtime/oneocr/
+native/build/
