@@ -1,5 +1,4 @@
 import pytest
-
 from ayorai.safety.guard import SafetyGuard
 
 def test_safety_blocks_prompt_injection_pattern():
