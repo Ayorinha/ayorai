@@ -13,8 +13,8 @@ class SafetyGuard:
 
     @staticmethod
     def normalize(text: str) -> str:
-        """Normalize whitespace and punctuation for deterministic matching."""
-        normalized = re.sub(r"[^a-z0-9]+", " ", text.lower())
+        """Normalize whitespace and punctuation while preserving Unicode text."""
+        normalized = re.sub(r"[^\w]+", " ", text.lower(), flags=re.UNICODE)
         return " ".join(normalized.split())
 
     def validate(self, text: str) -> bool:
