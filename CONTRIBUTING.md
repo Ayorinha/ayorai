@@ -27,8 +27,9 @@ Run the same checks used by CI:
 
 ```bash
 python -m pip install -e ".[dev]"
-ruff check .
-pytest -q
+python -m pip check
+python -m ruff check .
+python -m pytest -q
 ```
 
 Install the optional pre-commit hooks:
