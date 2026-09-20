@@ -1,3 +1,6 @@
+import re
+
+
 class SafetyGuard:
     """Lightweight deterministic policy gate for agent inputs and outputs."""
 
@@ -8,8 +11,14 @@ class SafetyGuard:
         "disable safety",
     )
 
+    @staticmethod
+    def normalize(text: str) -> str:
+        """Normalize whitespace and punctuation for deterministic matching."""
+        normalized = re.sub(r"[^a-z0-9]+", " ", text.lower())
+        return " ".join(normalized.split())
+
     def validate(self, text: str) -> bool:
-        normalized = " ".join(text.lower().split())
+        normalized = self.normalize(text)
         return not any(pattern in normalized for pattern in self.blocked_patterns)
 
     def enforce(self, text: str) -> str:
