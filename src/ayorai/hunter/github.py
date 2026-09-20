@@ -3,7 +3,7 @@ import os
 import re
 import urllib.request
 
-ISSUE_RE = re.compile(r"github\\.com/([^/]+)/([^/]+)/issues/(\\d+)")
+ISSUE_RE = re.compile(r"github\.com/([^/]+)/([^/]+)/issues/(\d+)")
 
 def parse_issue_url(url: str) -> tuple[str, int]:
     match = ISSUE_RE.search(url)
