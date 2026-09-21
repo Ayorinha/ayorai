@@ -7,7 +7,7 @@ It is not a production credential system.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, replace
 from hashlib import sha256
 import hmac
 import json
@@ -102,7 +102,7 @@ class ASAEVerifier:
             issued_at=now,
             signature="",
         )
-        return AuthorizationEnvelope(**{**asdict(envelope), "signature": self.sign(envelope)})
+        return replace(envelope, signature=self.sign(envelope))
 
     def verify(
         self,
