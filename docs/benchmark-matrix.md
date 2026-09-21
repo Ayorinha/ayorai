@@ -16,7 +16,7 @@ This is a capability comparison, not a ranking.
 | Berkeley AISI | agentic risk management | Scenario | Yes | Yes | Yes | Yes | Governance | Yes |
 | Tsinghua secure AI | secure/robust AI + privacy | Research | Research | Research | Research | Research | Research | Research |
 | NJU SecLab | AI/system security | Research | Research | Research | Research | Research | Research | Research |
-| **AYORAI Shield** | integrated runtime security | Target | Target | Target | Target | Target | Target | Target |
+| **AYORAI Shield** | integrated runtime security + independent authorization | Target | Target | Target | Target | Target | Target | Target |
 
 ## Required Shield measurements
 Attack success rate, benign-task success, false positives/over-defense, unauthorized tool calls, sensitive-data exfiltration, memory-poisoning persistence, cross-agent propagation, latency, audit completeness, recovery success and adversarial cost amplification.
