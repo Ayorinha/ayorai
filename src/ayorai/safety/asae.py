@@ -13,7 +13,7 @@ import hmac
 import json
 import secrets
 import time
-from typing import Any
+from typing import Any, Callable
 
 
 IMPACT_ORDER = {"read": 0, "write": 1, "external": 2, "high": 3}
@@ -54,7 +54,7 @@ class ASAEVerifier:
 
     protocol_version = "0.1"
 
-    def __init__(self, secret: bytes, *, clock: callable | None = None) -> None:
+    def __init__(self, secret: bytes, *, clock: Callable[[], float] | None = None) -> None:
         if len(secret) < 32:
             raise ValueError("ASAE research keys must contain at least 32 bytes.")
         self._secret = secret
