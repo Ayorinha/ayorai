@@ -125,6 +125,26 @@ Shield's research direction is deliberately broader than a static jailbreak dete
 
 These are research goals and engineering properties to be demonstrated experimentally, not claims of superiority over all existing systems.
 
+## Scientific security research
+
+AYORAI Shield now includes an experimental **ASAE — Ayorai Secure Action Envelope** research protocol. The design separates model-generated intent from execution authority using scoped capabilities, short-lived authorization, freshness/nonces, provenance commitments, policy versions and transaction identifiers.
+
+> **Model output is not authority.**
+
+The protocol is explicitly not based on secrecy: public knowledge of the format must not be sufficient to authorize an action. The research implementation uses a standard HMAC-SHA256 primitive and is not presented as production cryptographic infrastructure.
+
+### Research program
+
+- [Scientific Research Protocol](docs/scientific-research-protocol.md)
+- [ASAE Protocol Specification](docs/asae-protocol-spec.md)
+- [Scientific Validation Matrix](docs/scientific-validation-matrix.md)
+- [Threat Model](docs/threat-model.md)
+- [Evaluation Plan](docs/evaluation-plan.md)
+- [Global Research Landscape](docs/research-landscape.md)
+- [Benchmark Matrix](docs/benchmark-matrix.md)
+
+The research map now tracks public work from NIST, MIT, Carnegie Mellon, Stanford, NCSC/GCHQ, ENISA, ETH Zürich, Canada, Australia, Singapore, Japan, South Korea and Chinese research groups, among others. New findings are intended to become tests, controls, benchmarks or explicit limitations.
+
 ## Author
 
 Anderson Leon Ayora — AYORAI · Applied Intelligence
