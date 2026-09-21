@@ -1,4 +1,5 @@
 import time
+from dataclasses import replace
 
 import pytest
 
@@ -56,9 +57,7 @@ def test_valid_envelope_is_accepted_once(verifier):
 
 def test_tampered_arguments_fail_signature(verifier):
     envelope = issue(verifier)
-    tampered = type(envelope)(
-        **{**envelope.__dict__, "bounded_arguments": {"mode": "unsafe"}}
-    )
+    tampered = replace(envelope, bounded_arguments={"mode": "unsafe"})
     assert not verifier.verify(
         tampered,
         expected_subject="agent-research",
