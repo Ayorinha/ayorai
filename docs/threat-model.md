@@ -1,61 +1,72 @@
 # AYORAI Shield Threat Model
 
-## Threat model scope
+## Scope
 
-Shield protects agentic systems rather than only the underlying LLM.
+Shield protects agentic systems at the boundary between model reasoning and consequential execution.
 
-### Assets
+## Assets
 
-- system and developer instructions;
-- user data;
+- system/developer instructions;
+- user and tenant data;
 - credentials and delegated authority;
-- retrieved documents;
-- memory;
-- tool parameters;
+- retrieved documents and web content;
+- memory and persistent state;
+- tool/MCP configuration;
 - model outputs;
 - agent-to-agent messages;
+- authorization artifacts;
+- transaction state;
 - audit evidence;
 - application state.
 
-### Adversaries
+## Adversaries
 
 - malicious end user;
-- malicious document/web page;
-- compromised tool/MCP server;
+- malicious web/document content;
+- compromised MCP/tool server;
 - poisoned memory source;
-- malicious or compromised agent;
+- compromised agent;
+- malicious delegated agent;
 - supply-chain dependency;
-- attacker attempting to induce costly or irreversible behavior.
+- attacker attempting replay, privilege escalation, data exfiltration or irreversible state change.
 
 ## Attack classes
 
-| Attack surface | Example | Required defense |
+| Surface | Threat | Required control |
 |---|---|---|
-| Input | direct prompt injection | contextual analysis |
-| Retrieval | indirect injection in document | provenance + content isolation |
-| Web | malicious webpage | untrusted-content boundary |
-| Tool | tool abuse / privilege escalation | capability authorization |
-| MCP | malicious server/configuration | server identity + allowlist |
-| Memory | memory poisoning | integrity + provenance + quarantine |
-| Multi-agent | confused deputy / instruction laundering | independent policy checks |
-| Output | data exfiltration | output and destination policy |
-| Autonomy | excessive/irreversible action | risk-adaptive approval |
-| Supply chain | compromised dependency | dependency pinning + scanning |
-| Cost | denial-of-wallet / loops | budgets + rate limits |
-| Availability | tool/model exhaustion | timeouts + circuit breakers |
+| Input | direct/indirect prompt injection | contextual boundary |
+| Retrieval | poisoned document/web content | provenance + data/instruction separation |
+| Tool | abuse / privilege escalation | capability authorization |
+| MCP | malicious server / confused deputy | server identity + allowlist + scoped credentials |
+| Memory | poisoning / persistence | provenance + integrity + quarantine |
+| Multi-agent | instruction laundering / privilege propagation | independent identity and policy checks |
+| Identity | impersonation / stale authority | authenticated agent identity + short-lived credentials |
+| Authorization | scope expansion | least privilege + delegation confinement |
+| Replay | reused authorization | nonce + expiry + session epoch |
+| Output | exfiltration / unsafe tool transition | destination and action policy |
+| Autonomy | irreversible high-impact action | explicit approval + transaction boundary |
+| Supply chain | compromised dependency/model/tool | pinning + scanning + provenance |
+| Cost | loops / denial-of-wallet | budgets + rate limits + circuit breakers |
+| Availability | tool/model exhaustion | timeouts + isolation + recovery |
+| Audit | evidence tampering | chained evidence + external durable storage in production |
 
 ## Security properties
 
-Shield should demonstrate:
-
 1. **Confidentiality** — unauthorized data is not exposed.
 2. **Integrity** — unauthorized state changes are blocked.
-3. **Authorization** — actions stay within delegated capability.
-4. **Containment** — compromise of one agent does not automatically compromise others.
-5. **Provenance** — security-relevant decisions can be traced to sources and authority.
-6. **Recoverability** — suspicious state can be quarantined and rolled back.
-7. **Auditability** — security events are reconstructable.
+3. **Authorization** — actions remain within delegated capability.
+4. **Containment** — compromise of one agent does not automatically compromise another.
+5. **Freshness** — stale/replayed authorization is rejected.
+6. **Provenance** — security decisions can be traced to source and authority.
+7. **Recoverability** — suspicious state can be quarantined or rolled back where technically possible.
+8. **Auditability** — security events can be reconstructed.
+
+## Security invariant
+
+**Model output is not authority.**
+
+A natural-language request, tool-call proposal or generated protocol message cannot authorize itself. The executor requires an independently verifiable authorization artifact.
 
 ## Residual risk
 
-No prompt filter can guarantee protection against all attacks. The threat model therefore assumes defense in depth: contextual controls, authorization, isolation, monitoring, evaluation and human oversight for high-impact actions.
+No architecture can guarantee protection against every attack. Remaining risks include compromised trusted infrastructure, stolen signing material, application vulnerabilities, malicious authorized users, denial of service and unknown attack classes. These are explicit research targets rather than hidden assumptions.
