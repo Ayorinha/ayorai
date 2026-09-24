@@ -16,9 +16,33 @@ AYORAI is an open-source engineering project focused on agentic AI, AI safety, R
 1. Pick or open an issue.
 2. Create a feature branch.
 3. Implement the change with tests.
-4. Open a pull request.
-5. Respond to review feedback.
-6. Merge after validation.
+4. Run the local quality gate.
+5. Open a pull request.
+6. Wait for GitHub Actions and review feedback.
+7. Merge only after validation.
+
+## Local quality gate
+
+Run the same checks used by CI:
+
+```bash
+python -m pip install -e ".[dev]"
+python -m pip check
+python -m ruff check .
+python -m pytest -q
+```
+
+Install the optional pre-commit hooks:
+
+```bash
+python -m pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
+
+## Branch hygiene
+
+Keep branches focused and based on the current `main`. Before merging older work, compare the branch with `main` and resolve divergence deliberately.
 
 ## Security contributions
 
