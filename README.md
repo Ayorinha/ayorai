@@ -1,5 +1,7 @@
 # AYORAI — Agentic Intelligence & AI Safety
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 AYORAI is an applied AI engineering framework for modular agentic systems with explicit orchestration, safety controls, memory, RAG, MCP and tool governance.
 
 ## Engineering goals
