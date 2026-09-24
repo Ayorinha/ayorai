@@ -1,0 +1,30 @@
+name: AYORAI Hunter Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_url:
+        description: Public GitHub issue URL to analyze
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  hunter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install AYORAI
+        run: python -m pip install -e ".[dev]"
+      - name: Run tests
+        run: pytest -q
+      - name: Analyze issue with AYORAI Hunter
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m ayorai.hunter.cli "${{ inputs.issue_url }}" --json
