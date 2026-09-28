@@ -31,8 +31,8 @@ class ShieldEngine:
 
     def inspect_text(self, text: str, *, source: str = "unknown") -> ShieldDecision:
         normalized = " ".join(text.lower().split())
-        for pattern in self._INJECTION_PATTERNS:
-            if pattern in normalized:
+        for injection_pattern in self._INJECTION_PATTERNS:
+            if injection_pattern in normalized:
                 return ShieldDecision(
                     allowed=False,
                     risk=RiskLevel.HIGH,
@@ -41,8 +41,8 @@ class ShieldEngine:
                     controls=("input-boundary", "policy-enforcement"),
                     metadata={"source": source},
                 )
-        for pattern in self._SECRET_PATTERNS:
-            if pattern.search(text):
+        for secret_pattern in self._SECRET_PATTERNS:
+            if secret_pattern.search(text):
                 return ShieldDecision(
                     allowed=False,
                     risk=RiskLevel.HIGH,
