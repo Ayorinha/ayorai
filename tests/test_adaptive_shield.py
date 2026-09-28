@@ -1,7 +1,5 @@
 import hashlib
 
-import pytest
-
 from ayorai.shield.action_guard import AssetSensitivity, HighImpactActionGuard, ProtectedAction
 from ayorai.shield.adaptive import AdaptiveDefense, ThreatObservation
 from ayorai.shield.models import RiskLevel
