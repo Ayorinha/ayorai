@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ayorai — Podcast de Tecnologia</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
-
 <style>
 /* ── RESET & ROOT ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -395,7 +392,7 @@ body {
       <div id="edition-date"></div>
     </div>
   </div>
-  <p id="tagline">Notícias de tecnologia narradas por inteligência artificial — todo dia, automaticamente.</p>
+  <p id="tagline">Notícias de tecnologia, atualizadas automaticamente — com narração nativa do navegador.</p>
 </header>
 
 <!-- ══ EPISODE HERO ══ -->
@@ -542,7 +539,6 @@ async function loadAll() {
   dot('busy'); prog(8);
   stopAudio();
 
-  // Show skeletons
   document.getElementById('news-list').innerHTML =
     Array(10).fill(0).map((_, i) => `
       <div class="ni sk">
@@ -554,151 +550,62 @@ async function loadAll() {
         </div>
       </div>`).join('');
 
-  document.getElementById('ep-title').textContent = 'Buscando notícias…';
-  document.getElementById('ep-intro').textContent  = 'A IA está coletando as principais histórias de tecnologia do mundo agora.';
-  document.getElementById('player-status').textContent = 'Preparando podcast…';
+  document.getElementById('ep-title').textContent = 'Carregando edição…';
+  document.getElementById('ep-intro').textContent = 'Notícias públicas reunidas por RSS e narradas localmente pelo navegador.';
+  document.getElementById('player-status').textContent = 'Preparando roteiro…';
   document.getElementById('err').style.display = 'none';
 
   try {
-    prog(20);
+    prog(30);
+    const newsResp = await fetch('news.json');
+    if (!newsResp.ok) throw new Error(`Não foi possível carregar news.json (${newsResp.status})`);
+    const newsJson = await newsResp.json();
+    articles = Array.isArray(newsJson.articles)
+      ? newsJson.articles.map((a, i) => ({ ...a, idx: i }))
+      : [];
 
-    /* ── STEP 1: Fetch news articles ── */
-    const newsResp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        system: `Você é um curador de notícias de tecnologia. Busque as notícias de tecnologia mais importantes e recentes do mundo agora. Responda APENAS com JSON puro, sem markdown, sem backticks. Formato:
-{"articles":[{"title":"título em português","source":"Nome da Fonte","url":"https://url-real.com","time":"há X min","category":"ai|security|hardware|startup|cloud|dev|policy|crypto","summary":"Uma frase clara em português descrevendo a notícia."}]}
-Categorias: ai=IA/LLMs/modelos/agentes, security=cibersegurança/hacking/privacidade, hardware=chips/dispositivos/semicondutores, startup=empresas/funding/IPO/aquisições, cloud=AWS/Azure/GCP/infraestrutura, dev=programação/ferramentas/open-source, policy=regulação/governo/antitruste, crypto=Bitcoin/blockchain/Web3.
-Retorne exatamente 15 artigos frescos e variados das últimas horas. Fontes: TechCrunch, The Verge, Wired, Ars Technica, MIT Technology Review, VentureBeat, Reuters Tech, Bloomberg Technology, 9to5Google, 9to5Mac, Android Authority, The Register, ZDNet, Hacker News, Tecmundo, Canaltech, Olhar Digital.`,
-        messages: [{ role: 'user', content: 'Busque as 15 principais notícias de tecnologia agora. Responda APENAS com JSON.' }]
-      })
-    });
+    if (!articles.length) throw new Error('news.json não contém artigos.');
 
-    prog(50);
-    const newsData = await newsResp.json();
-    if (newsData.error) throw new Error(newsData.error.message);
+    prog(65);
+    podcast = buildPodcastScript(articles);
+    sentences = splitSentences(podcast);
 
-    const newsTxt = (newsData.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
-    const newsMatch = newsTxt.match(/\{[\s\S]*\}/);
-    if (!newsMatch) throw new Error('Formato de notícias inválido');
-    const newsJson = JSON.parse(newsMatch[0]);
-    articles = (newsJson.articles || []).map((a, i) => ({ ...a, idx: i }));
+    const first = articles[0];
+    document.getElementById('ep-title').textContent =
+      newsJson.title || 'Ayorai Tech — Edição de hoje';
+    document.getElementById('ep-intro').textContent =
+      `${articles.length} notícias selecionadas. ${first.title || 'Confira os destaques da edição.'}`;
+    document.getElementById('transcript-text').textContent = podcast;
 
-    prog(60);
-
-    /* ── STEP 2: Generate podcast script ── */
-    const titles = articles.map((a, i) => `${i+1}. ${a.title} — ${a.summary}`).join('\n');
-
-    const podResp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: `Você é um apresentador de podcast de tecnologia brasileiro, com voz clara, inteligente e envolvente. Escreva um roteiro de podcast em português brasileiro a partir das notícias fornecidas. O roteiro deve:
-- Começar com uma saudação calorosa e a data de hoje
-- Apresentar as notícias de forma fluida e conversacional, como se estivesse falando com um amigo inteligente
-- Usar transições naturais entre os assuntos ("Outro destaque do dia...", "Em seguida...", "Mudando de assunto...")
-- Dar contexto e opinião breve sobre cada notícia
-- Terminar com um fechamento motivador
-- Ter entre 400 e 600 palavras
-- NÃO usar markdown, NÃO usar asteriscos, listas ou símbolos — texto corrido para narração em voz alta
-- Escrever como se fosse ser lido em voz alta: frases curtas, naturais, com ritmo`,
-        messages: [{
-          role: 'user',
-          content: `Crie o roteiro do podcast de tecnologia de hoje com base nessas notícias:\n\n${titles}\n\nData de hoje: ${new Date().toLocaleDateString('pt-BR', {weekday:'long',day:'numeric',month:'long'})}`
-        }]
-      })
-    });
-
-    prog(85);
-    const podData = await podResp.json();
-    if (podData.error) throw new Error(podData.error.message);
-
-    podcast = (podData.content || []).filter(b => b.type === 'text').map(b => b.text).join('').trim();
-
-    // Split into sentences for highlight
-    sentences = podcast.match(/[^.!?]+[.!?]+/g) || [podcast];
-
-    prog(95);
-
-    /* ── Render everything ── */
-    renderEpisode();
     renderNews();
+    document.getElementById('news-count').textContent = `${articles.length} notícias`;
+    document.getElementById('player-status').textContent = 'Pronto para ouvir';
     dot('');
     prog(100);
-
-  } catch (e) {
-    const eb = document.getElementById('err');
-    eb.style.display = 'block';
-    eb.textContent = 'Não foi possível carregar o conteúdo: ' + (e.message || 'Erro desconhecido. Recarregue a página.');
-    document.getElementById('news-list').innerHTML = '';
-    document.getElementById('ep-title').textContent = 'Erro ao carregar edição';
-    document.getElementById('ep-intro').textContent = 'Verifique sua conexão e tente novamente.';
+  } catch (err) {
+    console.error(err);
     dot('error');
     prog(100);
+    document.getElementById('news-list').innerHTML = '';
+    document.getElementById('player-status').textContent = 'Não foi possível carregar a edição';
+    const box = document.getElementById('err');
+    box.textContent = err instanceof Error ? err.message : 'Erro ao carregar a edição.';
+    box.style.display = 'block';
   }
 }
 
-/* ═══════════════════════════════════════════
-   RENDER EPISODE HEADER
-═══════════════════════════════════════════ */
-function renderEpisode() {
-  // Build title from top category
-  const cats = {};
-  articles.forEach(a => { cats[a.category] = (cats[a.category]||0)+1; });
-  const topCat = Object.entries(cats).sort((x,y)=>y[1]-x[1])[0]?.[0] || 'tech';
-  const catNames = { ai:'Inteligência Artificial', security:'Cibersegurança', hardware:'Hardware',
-    startup:'Startups', cloud:'Cloud Computing', dev:'Desenvolvimento', policy:'Política Tech', crypto:'Crypto' };
-
-  document.getElementById('ep-title').textContent =
-    `${new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long'})} — ${articles.length} histórias em destaque`;
-
-  // First 2 sentences of podcast as intro
-  const intro = sentences.slice(0, 2).join(' ').trim();
-  document.getElementById('ep-intro').textContent = intro || 'Confira as principais notícias de tecnologia de hoje.';
-
-  // Transcript
-  document.getElementById('transcript-text').textContent = podcast;
-  document.getElementById('player-status').textContent = 'Pronto para reproduzir';
-  document.getElementById('news-count').textContent = articles.length + ' artigos';
+function buildPodcastScript(items) {
+  const opening = 'Olá. Este é o Ayorai Tech. Confira os principais destaques de tecnologia desta edição.';
+  const headlines = items.slice(0, 10).map((article, index) => {
+    const summary = article.summary ? ` ${article.summary}` : '';
+    return `Manchete ${index + 1}: ${article.title || 'Sem título'}.${summary}`;
+  });
+  const closing = 'Esses foram os destaques de tecnologia desta edição. Até a próxima.';
+  return [opening, ...headlines, closing].join(' ');
 }
 
-/* ═══════════════════════════════════════════
-   RENDER NEWS LIST
-═══════════════════════════════════════════ */
-function renderNews() {
-  const list = curFilter === 'all' ? articles : articles.filter(a => a.category === curFilter);
-  const el = document.getElementById('news-list');
-  document.getElementById('news-count').textContent = list.length + ' artigos';
-
-  if (!list.length) {
-    el.innerHTML = '<p style="padding:24px 0;font-size:.85rem;color:var(--ink3);font-style:italic">Nenhum artigo nessa categoria.</p>';
-    return;
-  }
-
-  el.innerHTML = list.map((a, i) => {
-    const tag = a.category
-      ? `<span class="ni-tag tag-${a.category}">${TAGS[a.category]||a.category}</span>`
-      : '';
-    const url = (a.url||'').startsWith('http') ? a.url : '#';
-    return `<a class="ni" href="${url}" target="_blank" rel="noopener noreferrer">
-      <span class="ni-num">${String(i+1).padStart(2,'0')}</span>
-      <div class="ni-body">
-        <div class="ni-title">${a.title||''}</div>
-        ${a.summary ? `<div class="ni-sum">${a.summary}</div>` : ''}
-        <div class="ni-foot">
-          <span class="ni-src">${a.source||''}</span>
-          <span class="ni-time">${a.time||''}</span>
-          ${tag}
-        </div>
-      </div>
-    </a>`;
-  }).join('');
+function splitSentences(text) {
+  return text.match(/[^.!?]+[.!?]+/g)?.map(s => s.trim()).filter(Boolean) || [text];
 }
 
 /* ═══════════════════════════════════════════
