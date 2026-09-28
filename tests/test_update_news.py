@@ -1,4 +1,15 @@
-from scripts.update_news import classify, parse_feed
+import importlib.util
+from pathlib import Path
+
+
+_MODULE_PATH = Path(__file__).parents[1] / "scripts" / "update_news.py"
+_SPEC = importlib.util.spec_from_file_location("update_news", _MODULE_PATH)
+assert _SPEC and _SPEC.loader
+_MODULE = importlib.util.module_from_spec(_SPEC)
+_SPEC.loader.exec_module(_MODULE)
+
+classify = _MODULE.classify
+parse_feed = _MODULE.parse_feed
 
 
 RSS = """<?xml version="1.0"?>
