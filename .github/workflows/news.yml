@@ -13,6 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -21,7 +24,7 @@ jobs:
       - name: Generate news.json
         run: python scripts/update_news.py
 
-      - name: Commit updated feed
+      - name: Publish update to automation branch
         run: |
           if git diff --quiet -- docs/news.json; then
             echo "No news changes."
@@ -29,6 +32,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C automation/news-feed
           git add docs/news.json
           git commit -m "chore(docs): update RSS news feed"
-          git push
+          git push --force-with-lease origin automation/news-feed
