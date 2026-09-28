@@ -20,7 +20,7 @@ class ShieldEngine:
         "disable safety",
         "bypass security",
     )
-    _SECRET_PATTERNS = (
+    _SECRET_PATTERNS: tuple[re.Pattern[str], ...] = (
         re.compile(r"(?:sk|pk)-[A-Za-z0-9_-]{20,}"),
         re.compile(r"(?i)bearer\\s+[A-Za-z0-9._~+/-]{20,}"),
     )
@@ -31,8 +31,8 @@ class ShieldEngine:
 
     def inspect_text(self, text: str, *, source: str = "unknown") -> ShieldDecision:
         normalized = " ".join(text.lower().split())
-        for pattern in self._INJECTION_PATTERNS:
-            if pattern in normalized:
+        for injection_pattern in self._INJECTION_PATTERNS:
+            if injection_pattern in normalized:
                 return ShieldDecision(
                     allowed=False,
                     risk=RiskLevel.HIGH,
@@ -41,8 +41,8 @@ class ShieldEngine:
                     controls=("input-boundary", "policy-enforcement"),
                     metadata={"source": source},
                 )
-        for pattern in self._SECRET_PATTERNS:
-            if pattern.search(text):
+        for secret_pattern in self._SECRET_PATTERNS:
+            if secret_pattern.search(text):
                 return ShieldDecision(
                     allowed=False,
                     risk=RiskLevel.HIGH,
