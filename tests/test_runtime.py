@@ -1,5 +1,6 @@
 import pytest
 
+from ayorai.core.types import AgentResult
 from ayorai.runtime import AyoraiRuntime
 
 
@@ -23,9 +24,9 @@ def test_runtime_rejects_injection_before_agent_execution():
 
 def test_runtime_rejects_sensitive_output():
     runtime = AyoraiRuntime()
-    runtime.router.agents["research"].run = lambda message: __import__("ayorai").core.types.AgentResult(
+    runtime.router.agents["research"].run = lambda message: AgentResult(
         agent="research-agent",
-        output="Bearer abcdefghijklmnopqrstuvwxyz"
+        output="Bearer abcdefghijklmnopqrstuvwxyz",
     )
     with pytest.raises(ValueError, match="credential material"):
         runtime.run("Analyze a document")
