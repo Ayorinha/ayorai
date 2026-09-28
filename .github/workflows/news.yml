@@ -1,0 +1,34 @@
+name: Scheduled RSS News Feed
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate news.json
+        run: python scripts/update_news.py
+
+      - name: Commit updated feed
+        run: |
+          if git diff --quiet -- docs/news.json; then
+            echo "No news changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/news.json
+          git commit -m "chore(docs): update RSS news feed"
+          git push
