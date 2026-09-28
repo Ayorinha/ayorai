@@ -1,5 +1,8 @@
 # AYORAI — Agentic Intelligence & AI Safety
 
+[![CI](https://github.com/Ayorinha/ayorai/actions/workflows/ci.yml/badge.svg)](https://github.com/Ayorinha/ayorai/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/)
+[![Coverage](https://img.shields.io/badge/coverage-pytest--cov-informational.svg)](https://github.com/Ayorinha/ayorai/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 AYORAI is an applied AI engineering framework for modular agentic systems with explicit orchestration, safety controls, memory, RAG, MCP and tool governance.
@@ -40,16 +43,41 @@ User → Shield → Planner → Router → Specialized Agents
 ~~~
 
 ## Repository structure
-- src/ayorai/agents — specialized agents
-- src/ayorai/core — shared contracts
-- src/ayorai/orchestration — planning and routing
-- src/ayorai/safety — policy and risk controls
-- src/ayorai/shield — runtime security enforcement
-- src/ayorai/memory — state interfaces
-- src/ayorai/rag — retrieval interfaces
-- src/ayorai/mcp — tool/context adapters
-- src/ayorai/tools — governed tools
-- tests — automated tests
+
+```text
+.github/             CI, CodeQL, Dependabot and contribution templates
+docs/                architecture, security, research and roadmap documentation
+examples/            runnable usage examples
+src/ayorai/
+  agents/            specialized agents
+  core/              shared contracts and execution types
+  orchestration/     planning and routing
+  safety/            policy and risk controls
+  shield/            runtime security enforcement
+  memory/            state interfaces
+  rag/               retrieval interfaces
+  mcp/               tool/context adapters
+  tools/             governed tools
+tests/               automated tests
+pyproject.toml       package metadata and development tooling
+SECURITY.md          vulnerability reporting
+CONTRIBUTING.md      contribution workflow
+```
+
+## Shield example
+
+```python
+from ayorai.shield.engine import ShieldEngine
+
+shield = ShieldEngine(allowed_tools={"search"})
+decision = shield.inspect_text("Please summarize this report.")
+print(decision.allowed, decision.risk.value)
+print(shield.authorize_tool("search").allowed)
+```
+
+## Roadmap
+- [Issue #8 — Community roadmap](https://github.com/Ayorinha/ayorai/issues/8)
+- [Issue #17 — External validation](https://github.com/Ayorinha/ayorai/issues/17)
 
 ## Quick start
 ~~~bash
