@@ -26,7 +26,7 @@ def test_runtime_rejects_sensitive_output():
     runtime = AyoraiRuntime()
     runtime.router.agents["research"].run = lambda message: AgentResult(
         agent="research-agent",
-        output="Bearer abcdefghijklmnopqrstuvwxyz",
+        output="sk-" + "a" * 24,
     )
     with pytest.raises(ValueError, match="credential material"):
         runtime.run("Analyze a document")
