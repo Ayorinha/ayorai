@@ -20,7 +20,7 @@ class ShieldEngine:
         "disable safety",
         "bypass security",
     )
-    _SECRET_PATTERNS = (
+    _SECRET_PATTERNS: tuple[re.Pattern[str], ...] = (
         re.compile(r"(?:sk|pk)-[A-Za-z0-9_-]{20,}"),
         re.compile(r"(?i)bearer\\s+[A-Za-z0-9._~+/-]{20,}"),
     )
