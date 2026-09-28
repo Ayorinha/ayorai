@@ -117,13 +117,24 @@ def build_news(feeds: tuple[tuple[str, str], ...] = FEEDS, per_feed: int = 10) -
     }
 
 
-def main() -> None:
-    output = Path(__file__).resolve().parents[1] / "docs" / "news.json"
+def write_news(output: Path, feeds: tuple[tuple[str, str], ...] = FEEDS) -> bool:
+    """Write fresh news, or keep the versioned fallback when all feeds fail."""
+    news = build_news(feeds)
+    if not news["articles"] and output.exists():
+        print(f"RSS feeds unavailable; keeping existing fallback at {output}")
+        return False
+
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        json.dumps(build_news(), ensure_ascii=False, indent=2) + "\n",
+        json.dumps(news, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    return True
+
+
+def main() -> None:
+    output = Path(__file__).resolve().parents[1] / "docs" / "news.json"
+    write_news(output)
 
 
 if __name__ == "__main__":
