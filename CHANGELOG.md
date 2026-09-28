@@ -4,7 +4,9 @@ All notable changes to AYORAI are documented here.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases follow Semantic Versioning.
 
-## [0.2.0] - Unreleased
+## [Unreleased]
+
+## [0.2.0] - 2026-09-28
 
 ### Added
 - Agentic framework foundation with orchestration, safety, memory, RAG, MCP and governed tools.
