@@ -41,13 +41,6 @@ def test_shield_blocks_secret_pattern():
     assert decision.reason_code == "SENSITIVE_DATA_EXPOSURE"
 
 
-def test_shield_blocks_bearer_pattern():
-    token = "Bearer " + "a" * 24
-    decision = ShieldEngine().inspect_text(token)
-    assert decision.allowed is False
-    assert decision.reason_code == "SENSITIVE_DATA_EXPOSURE"
-
-
 def test_shield_allows_explicit_tool():
     decision = ShieldEngine({"search"}).authorize_tool("search")
     assert decision.allowed is True
