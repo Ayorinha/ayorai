@@ -42,6 +42,27 @@ User → Shield → Planner → Router → Specialized Agents
                  Audit → Result
 ~~~
 
+## Architecture diagram
+
+~~~mermaid
+flowchart TD
+    U[User / Task] --> S[AYORAI Shield]
+    S --> P[Planner]
+    P --> R[Router]
+    R --> RA[Research Agent]
+    R --> AN[Analyst Agent]
+    R --> SE[Security Agent]
+    R --> RV[Reviewer Agent]
+    RA --> G[Governed Tools / MCP / RAG]
+    AN --> G
+    SE --> G
+    RV --> G
+    G --> A[Audit / Execution Result]
+    S -. policy .-> G
+~~~
+
+> **Design principle:** orchestration, safety, tools, memory and retrieval remain explicit engineering boundaries.
+
 ## Repository structure
 
 ```text
